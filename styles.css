@@ -1,0 +1,112 @@
+/* styles.css */
+
+/* Body & background */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Courier New', Courier, monospace;
+
+  /* Soft lofi pastel gradient background */
+  background: linear-gradient(135deg, #f3d6f0, #ffd6d6, #ffe5c5, #d6e0ff);
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: #333;
+}
+
+/* Game container */
+#gameContainer {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 25px 20px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(6px);
+  max-width: 550px;
+  width: 90%;
+}
+
+/* Heading */
+#gameContainer h1 {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: #555;
+}
+
+/* Canvas styling */
+canvas {
+  border: 3px solid #555;
+  border-radius: 10px;
+  display: block;
+  margin: 20px auto;
+  background-color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Score and timer */
+#score, #timer {
+  font-size: 1.2rem;
+  margin-top: 10px;
+  font-weight: bold;
+  color: #444;
+}
+
+/* Share button */
+#shareBtn {
+  display: none; /* controlled by JS */
+  padding: 8px 15px;
+  margin-top: 15px;
+  font-size: 1rem;
+  font-family: 'Courier New', monospace;
+  color: #fff;
+  background-color: #c3a9ff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
+
+#shareBtn:hover {
+  background-color: #9a856f;
+  transform: translateY(-2px);
+}
+
+/* Share message */
+#shareMessage {
+  font-size: 0.9rem;
+  margin-top: 5px;
+  color: #2b662b;
+  min-height: 20px; /* prevent layout shift */
+}
+
+/* Lofi texture overlay */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('https://www.transparenttextures.com/patterns/old-mathematics.png');
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 200, 255, 0.2);
+  filter: blur(80px);
+  top: 10%;
+  left: 70%;
+  border-radius: 50%;
+  animation: floatBlob 25s ease-in-out infinite;
+  z-index: 0;
+}
