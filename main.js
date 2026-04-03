@@ -253,8 +253,12 @@ function calculateScore() {
   shareBtn.style.display = 'inline-block';
   shareMessage.innerText = '';
 
-  // Prepare share text (simple example)
-  const shareText = `Cool Cutters Daily\nScore: ${finalScore} | Highscore: ${Math.max(finalScore, highscore)}`;
+  const gameUrl = "https://wmildenberger4711-art.github.io/daily-game/";
+
+  const shareText = `Cool Cutters Daily
+  Score: ${finalScore} | Highscore: ${Math.max(finalScore, highscore)}
+
+Play here: ${gameUrl}`;
 
   shareBtn.onclick = () => {
     navigator.clipboard.writeText(shareText).then(() => {
