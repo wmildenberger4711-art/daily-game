@@ -16,6 +16,86 @@ let timeLimit = 10;
 let timeLeft = timeLimit;
 let timerInterval = null;
 
+// Daily play tracking
+function getLocalDateKey() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function getTodayPlayKey() {
+  return `coolCuttersPlayed-${getLocalDateKey()}`;
+}
+
+function hasPlayedToday() {
+  return localStorage.getItem(getTodayPlayKey()) !== null;
+}
+
+function saveTodayResult(result) {
+  localStorage.setItem(getTodayPlayKey(), JSON.stringify(result));
+}
+function setupShareButton(score) {
+  const shareBtn = document.getElementById('shareBtn');
+  const shareMessage = document.getElementById('shareMessage');
+  const highscore = Number(localStorage.getItem('coolCuttersHigh') || 0);
+  const bestScore = Math.max(score, highscore);
+
+  const gameUrl = "https://wmildenberger4711-art.github.io/daily-game/";
+
+  const shareText = `Cool Cutters Daily
+Score: ${score} | Highscore: ${bestScore}
+
+Play here: ${gameUrl}`;
+
+  shareBtn.style.display = 'inline-block';
+
+  shareBtn.onclick = () => {
+    navigator.clipboard.writeText(shareText).then(() => {
+      shareMessage.innerText = 'Score copied to clipboard! Share it with friends 🎉';
+      setTimeout(() => {
+        shareMessage.innerText = '';
+      }, 3000);
+    }).catch(() => {
+      shareMessage.innerText = 'Failed to copy. Please try manually.';
+    });
+  };
+}
+
+function getTodayResult() {
+  return JSON.parse(localStorage.getItem(getTodayPlayKey()) || 'null');
+}
+
+function showPlayedTodayMessage() {
+  const result = getTodayResult();
+  const msgEl = document.getElementById('dailyMessage');
+  const scoreEl = document.getElementById('score');
+
+  if (result) {
+    msgEl.innerText = 'You already played today. Come back tomorrow.';
+    scoreEl.innerText = `Today's score: ${result.score}`;
+    setupShareButton(result.score);
+  } else {
+    msgEl.innerText = 'You already played today. Come back tomorrow.';
+    document.getElementById('shareBtn').style.display = 'none';
+  }
+
+  lockGameUI();
+}
+function lockGameUI() {
+  canvas.style.pointerEvents = 'none';
+  canvas.style.opacity = '0.7';
+}
+
+function unlockGameUI() {
+  canvas.style.pointerEvents = 'auto';
+  canvas.style.opacity = '1';
+}
+
+
+
+
 // Get today's shape points from shapes.js
 const shapePoints = getTodaysShape();
 let startPoint = {x: shapePoints[0].x, y:shapePoints[0].y };
@@ -68,6 +148,11 @@ drawShape();
 
 // --- Mouse events ---
 canvas.addEventListener('mousedown', e => {
+  if (hasPlayedToday()) {
+    showPlayedTodayMessage();
+    return;
+  }
+
   const dx = e.offsetX - startPoint.x;
   const dy = e.offsetY - startPoint.y;
   const dist = Math.sqrt(dx*dx + dy*dy);
@@ -232,40 +317,37 @@ function animate() {
 }
 
 // start the loop
+if (hasPlayedToday()) {
+  showPlayedTodayMessage();
+} else {
+  unlockGameUI();
+}
 animate();
 
 // --- Score calculation ---
 function calculateScore() {
+  if (hasPlayedToday()) {
+    showPlayedTodayMessage();
+    return;
+  }
+
   const hits = shapePoints.filter(p => p.hit).length;
   const total = shapePoints.length;
   const finalScore = Math.round((hits / total) * 100);
 
   // Save highscore
-  const highscore = localStorage.getItem('coolCuttersHigh') || 0;
+  const highscore = Number(localStorage.getItem('coolCuttersHigh') || 0);
   if (finalScore > highscore) localStorage.setItem('coolCuttersHigh', finalScore);
+
+  // Save today's play result
+  saveTodayResult({
+    score: finalScore,
+    playedAt: new Date().toISOString()
+  });
 
   document.getElementById('score').innerText =
     `Score: ${finalScore} | Highscore: ${Math.max(finalScore, highscore)}`;
 
   // Show the share button
-  const shareBtn = document.getElementById('shareBtn');
-  const shareMessage = document.getElementById('shareMessage');
-  shareBtn.style.display = 'inline-block';
-  shareMessage.innerText = '';
-
-  const gameUrl = "https://wmildenberger4711-art.github.io/daily-game/";
-
-  const shareText = `Cool Cutters Daily
-  Score: ${finalScore} | Highscore: ${Math.max(finalScore, highscore)}
-
-Play here: ${gameUrl}`;
-
-  shareBtn.onclick = () => {
-    navigator.clipboard.writeText(shareText).then(() => {
-      shareMessage.innerText = 'Score copied to clipboard! Share it with friends 🎉';
-      setTimeout(() => { shareMessage.innerText = ''; }, 3000);
-    }).catch(() => {
-      shareMessage.innerText = 'Failed to copy. Please try manually.';
-    });
-  };
+  setupShareButton(finalScore);
 }
